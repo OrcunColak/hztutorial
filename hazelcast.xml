@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hazelcast xmlns="http://www.hazelcast.com/schema/config"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://www.hazelcast.com/schema/config
+                               http://www.hazelcast.com/schema/config/hazelcast-config-5.1.xsd">
+
+    <instance-name>XML_Hazelcast_Instance</instance-name>
+
+    <cluster-name>dev</cluster-name>
+    <properties>
+        <property name="hazelcast.logging.type">slf4j</property>
+    </properties>
+
+    <network>
+        <port auto-increment="true" port-count="20">5701</port>
+        <join>
+            <multicast enabled="true"/>
+            <tcp-ip enabled="false">
+                <member>machine1</member>
+                <member>localhost</member>
+            </tcp-ip>
+        </join>
+    </network>
+
+    <jet enabled="true" resource-upload-enabled="true">
+        <instance>
+            <cooperative-thread-count>4</cooperative-thread-count>
+            <flow-control-period>100</flow-control-period>
+            <backup-count>1</backup-count>
+            <scale-up-delay-millis>10000</scale-up-delay-millis>
+            <lossless-restart-enabled>false</lossless-restart-enabled>
+            <max-processor-accumulated-records>1000000000</max-processor-accumulated-records>
+        </instance>
+        <edge-defaults>
+            <queue-size>1024</queue-size>
+            <packet-size-limit>16384</packet-size-limit>
+            <receive-window-multiplier>3</receive-window-multiplier>
+        </edge-defaults>
+    </jet>
+
+<!--    Download Management Center from https://hazelcast.com/open-source-projects/downloads/-->
+<!--    1. unzip-->
+<!--    2. cd to bin directory-->
+<!--    set MC_CLASSPATH=D:\hztutorial\hztutorial\target\classes\org\example-->
+<!--    3. execute: mc-start.cmd-->
+    <management-center/>
+
+</hazelcast>
