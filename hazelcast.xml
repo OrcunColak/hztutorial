@@ -2,7 +2,7 @@
 <hazelcast xmlns="http://www.hazelcast.com/schema/config"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://www.hazelcast.com/schema/config
-                               http://www.hazelcast.com/schema/config/hazelcast-config-5.1.xsd">
+                               http://www.hazelcast.com/schema/config/hazelcast-config-5.3.xsd">
 
     <instance-name>XML_Hazelcast_Instance</instance-name>
 
@@ -38,11 +38,33 @@
         </edge-defaults>
     </jet>
 
+    <external-data-store name="my-mysql-database">
+        <class-name>com.hazelcast.datastore.JdbcDataStoreFactory</class-name>
+        <properties>
+            <property name="jdbcUrl">jdbc:mysql://localhost:3306/db</property>
+            <property name="username">root</property>
+            <property name="password">root</property>
+        </properties>
+        <shared>true</shared>
+    </external-data-store>
+
+    <map name="dbmap">
+        <map-store enabled="true">
+            <class-name>com.hazelcast.mapstore.GenericMapStore</class-name>
+            <properties>
+                <property name="external-data-store-ref">my-mysql-database</property>
+<!--                <property name="id-column">id</property>-->
+<!--                <property name="columns">name</property>-->
+            </properties>
+        </map-store>
+    </map>
+
 <!--    Download Management Center from https://hazelcast.com/open-source-projects/downloads/-->
 <!--    1. unzip-->
 <!--    2. cd to bin directory-->
 <!--    set MC_CLASSPATH=D:\hztutorial\hztutorial\target\classes\org\example-->
 <!--    3. execute: mc-start.cmd-->
+<!--    Go to lo http://localhost:8080-->
     <management-center/>
 
 </hazelcast>

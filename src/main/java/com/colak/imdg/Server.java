@@ -4,6 +4,8 @@ import com.colak.jet.WordCounter;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
+import com.hazelcast.nio.serialization.genericrecord.GenericRecord;
+import com.hazelcast.nio.serialization.genericrecord.GenericRecordBuilder;
 import org.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +24,36 @@ public class Server {
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
+        createDbMap(hazelcastInstance);
+        logger.info("Server created dbmap");
+
         createSimpleMap(hazelcastInstance);
+        logger.info("Server created simple map");
 
         createPersonMap(hazelcastInstance);
+        logger.info("Server created person map");
 
         WordCounter wordCounter = new WordCounter();
         wordCounter.countWord(hazelcastInstance);
         logger.info("Server ready");
+    }
+
+    private static void createDbMap(HazelcastInstance hazelcastInstance) {
+
+
+        SqlPortable.beforeClass(hazelcastInstance);
+
+        Map<Integer, GenericRecord> map = hazelcastInstance.getMap("dbmap");
+        for (int i = 0; i < 10; i++) {
+            String value = "message" + i;
+
+            GenericRecord genericRecord = GenericRecordBuilder.compact("Person")
+                    .setInt32("id",i)
+                    .setString("name", value)
+                    .build();
+
+            map.put(i, genericRecord);
+        }
     }
 
     private static void createSimpleMap(HazelcastInstance hazelcastInstance) {
@@ -50,6 +75,5 @@ public class Server {
             Person person = new Person(key, name);
             map.put(key, person);
         }
-
     }
 }

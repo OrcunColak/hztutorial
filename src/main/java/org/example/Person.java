@@ -23,6 +23,10 @@ public class Person implements Serializable {
     long id;
     String name;
 
+    public Person() {
+
+    }
+
     public Person(long id, String name) {
         this.id = id;
         this.name = name;
@@ -32,7 +36,7 @@ public class Person implements Serializable {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(long id) {
         this.id = id;
     }
 
