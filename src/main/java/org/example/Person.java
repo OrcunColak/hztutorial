@@ -23,6 +23,8 @@ public class Person implements Serializable {
     long id;
     String name;
 
+    String ssn;
+
     public Person() {
 
     }
@@ -46,5 +48,13 @@ public class Person implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSsn() {
+        return ssn;
+    }
+
+    public void setSsn(String ssn) {
+        this.ssn = ssn;
     }
 }

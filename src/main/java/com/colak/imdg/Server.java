@@ -50,6 +50,7 @@ public class Server {
             GenericRecord genericRecord = GenericRecordBuilder.compact("Person")
                     .setInt32("id",i)
                     .setString("name", value)
+                    .setString("ssn", value)
                     .build();
 
             map.put(i, genericRecord);

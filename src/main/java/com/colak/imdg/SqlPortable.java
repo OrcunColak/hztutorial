@@ -50,6 +50,7 @@ public class SqlPortable  {
                 new ClassDefinitionBuilder(PERSON_FACTORY_ID, PERSON_CLASS_ID, PERSON_CLASS_VERSION)
                         .addIntField("id")
                         .addStringField("name")
+                        .addStringField("ssn")
                         .build();
         serializationService.getPortableContext().registerClassDefinition(personClassDefinition);
 
