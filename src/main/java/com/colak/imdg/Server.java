@@ -17,10 +17,12 @@ public class Server {
 
     private static final Logger logger = LoggerFactory.getLogger(Server.class);
 
+
     public static void main(String[] args) {
 
-
         HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
+
+        PrepareDatabase.prepareDatabase(hazelcastInstance);
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
@@ -48,7 +50,7 @@ public class Server {
             String value = "message" + i;
 
             GenericRecord genericRecord = GenericRecordBuilder.compact("Person")
-                    .setInt32("id",i)
+                    .setInt32("id", i)
                     .setString("name", value)
                     .setString("ssn", value)
                     .build();

@@ -24,7 +24,6 @@ import com.hazelcast.nio.serialization.ClassDefinitionBuilder;
 
 public class SqlPortable  {
 
-
     private static final int PERSON_FACTORY_ID = 4;
     private static final int PERSON_CLASS_ID = 5;
     private static final int PERSON_CLASS_VERSION = 6;
@@ -37,21 +36,16 @@ public class SqlPortable  {
     private static final int EMPTY_TYPES_CLASS_ID = 11;
     private static final int EMPTY_TYPES_CLASS_VERSION = 12;
 
-    private static InternalSerializationService serializationService;
-    private static ClassDefinition personClassDefinition;
-    private static ClassDefinition emptyClassDefinition;
-
     // reusing ClassDefinitions as schema does not change
     public static void beforeClass(HazelcastInstance instance) {
 
-        serializationService = Util.getSerializationService(instance);
+        InternalSerializationService serializationService = Util.getSerializationService(instance);
 
-        personClassDefinition =
-                new ClassDefinitionBuilder(PERSON_FACTORY_ID, PERSON_CLASS_ID, PERSON_CLASS_VERSION)
-                        .addIntField("id")
-                        .addStringField("name")
-                        .addStringField("ssn")
-                        .build();
+        ClassDefinition personClassDefinition = new ClassDefinitionBuilder(PERSON_FACTORY_ID, PERSON_CLASS_ID, PERSON_CLASS_VERSION)
+                .addIntField("id")
+                .addStringField("name")
+                .addStringField("ssn")
+                .build();
         serializationService.getPortableContext().registerClassDefinition(personClassDefinition);
 
 
@@ -75,9 +69,8 @@ public class SqlPortable  {
                         .build();
         serializationService.getPortableContext().registerClassDefinition(allTypesValueClassDefinition);
 
-        emptyClassDefinition =
-                new ClassDefinitionBuilder(EMPTY_TYPES_FACTORY_ID, EMPTY_TYPES_CLASS_ID, EMPTY_TYPES_CLASS_VERSION)
-                        .build();
+        ClassDefinition emptyClassDefinition = new ClassDefinitionBuilder(EMPTY_TYPES_FACTORY_ID, EMPTY_TYPES_CLASS_ID, EMPTY_TYPES_CLASS_VERSION)
+                .build();
         serializationService.getPortableContext().registerClassDefinition(emptyClassDefinition);
     }
 
