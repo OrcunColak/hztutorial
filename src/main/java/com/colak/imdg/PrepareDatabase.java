@@ -24,6 +24,7 @@ public class PrepareDatabase {
         DataSource dataSource = getDataSource(hazelcastInstance);
 
         executeUpdate(dataSource, "create table if not exists dbmap (id int not null, name varchar(45), ssn varchar(45), primary key (id))");
+        executeUpdate(dataSource, "truncate table dbmap");
     }
 
     protected static DataSource getDataSource(HazelcastInstance hazelcastInstance) {
@@ -31,7 +32,6 @@ public class PrepareDatabase {
         ExternalDataStoreService externalDataStoreService = nodeEngine.getExternalDataStoreService();
         ExternalDataStoreFactory<?> dataStoreFactory = externalDataStoreService.getExternalDataStoreFactory("my-mysql-database");
         DataSource dataSource = ((JdbcDataStoreFactory) dataStoreFactory).getDataStore();
-        externalDataStoreService.close();
         return dataSource;
     }
     /*
@@ -50,9 +50,8 @@ public class PrepareDatabase {
     }*/
 
     private static void executeUpdate(DataSource dataSource, String query) {
-        try (
-                Connection connection = dataSource.getConnection();
-                Statement statement = connection.createStatement();) {
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();) {
 
             int result = statement.executeUpdate(query);
             logger.info("executeUpdate result : {}", result);
