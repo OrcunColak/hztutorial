@@ -1,3 +1,1 @@
-create table if not exists db.dbmap (id int not null, name varchar(45), ssn varchar(45), primary key (id))
-
-docker run -d -it  -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=db  --name mysql -p 3306:3306 mysql:8.0 --sql-mode="ANSI_QUOTES"
+docker run -d -it  -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=db  --name mysql --rm -p 3306:3306 -v ${PWD}/schema.sql:/docker-entrypoint-initdb.d/schema.sql mysql:8.0 --sql-mode="ANSI_QUOTES"
