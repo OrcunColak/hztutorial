@@ -22,7 +22,7 @@ public class Server {
 
         HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
 
-        PrepareDatabase.prepareDatabase(hazelcastInstance);
+        //PrepareDatabase.prepareDatabase(hazelcastInstance);
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
@@ -46,7 +46,7 @@ public class Server {
         SqlPortable.beforeClass(hazelcastInstance);
 
         Map<Integer, GenericRecord> map = hazelcastInstance.getMap("dbmap");
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 3; i++) {
             String value = "message" + i;
 
             GenericRecord genericRecord = GenericRecordBuilder.compact("Person")
