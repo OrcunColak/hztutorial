@@ -1,11 +1,15 @@
 package com.colak.imdg;
 
 import com.colak.jet.WordCounter;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.InMemoryFormat;
+import com.hazelcast.config.ReplicatedMapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
 import com.hazelcast.nio.serialization.genericrecord.GenericRecord;
 import com.hazelcast.nio.serialization.genericrecord.GenericRecordBuilder;
+import com.hazelcast.replicatedmap.ReplicatedMap;
 import org.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +30,8 @@ public class Server {
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
+        createReplicatedMap(hazelcastInstance);
+
         createDbMap(hazelcastInstance);
         logger.info("Server created dbmap");
 
@@ -38,6 +44,20 @@ public class Server {
         WordCounter wordCounter = new WordCounter();
         wordCounter.countWord(hazelcastInstance);
         logger.info("Server ready");
+    }
+
+    private static void createReplicatedMap(HazelcastInstance hazelcastInstance) {
+        Config config = hazelcastInstance.getConfig();
+        ReplicatedMapConfig replicatedMapConfig = config.getReplicatedMapConfig("rogueUsers");
+
+        replicatedMapConfig.setInMemoryFormat(InMemoryFormat.BINARY);
+        replicatedMapConfig.setAsyncFillup(true);
+        replicatedMapConfig.setStatisticsEnabled(true);
+        replicatedMapConfig.setSplitBrainProtectionName("splitbrainprotection-name");
+
+        ReplicatedMap<String, String> replicatedMap = hazelcastInstance.getReplicatedMap("rogueUsers");
+        replicatedMap.put("key","value");
+
     }
 
     private static void createDbMap(HazelcastInstance hazelcastInstance) {
