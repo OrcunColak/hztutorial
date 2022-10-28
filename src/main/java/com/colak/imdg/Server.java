@@ -67,6 +67,8 @@ public class Server {
 
         IMap<Long, String> mapStore = hazelcastInstance.getMap("mapstoremap");
         mapStore.put(1L,"test");
+        String s = mapStore.get(1L);
+        String s1 = mapStore.get(2L);
 
     }
     private static void createDbMap(HazelcastInstance hazelcastInstance) {
