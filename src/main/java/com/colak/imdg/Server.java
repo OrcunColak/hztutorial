@@ -7,6 +7,7 @@ import com.hazelcast.config.ReplicatedMapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
+import com.hazelcast.map.IMap;
 import com.hazelcast.nio.serialization.genericrecord.GenericRecord;
 import com.hazelcast.nio.serialization.genericrecord.GenericRecordBuilder;
 import com.hazelcast.replicatedmap.ReplicatedMap;
@@ -29,6 +30,8 @@ public class Server {
         //PrepareDatabase.prepareDatabase(hazelcastInstance);
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
+
+        createMapStore(hazelcastInstance);
 
         createReplicatedMap(hazelcastInstance);
 
@@ -60,6 +63,12 @@ public class Server {
 
     }
 
+    private static void createMapStore(HazelcastInstance hazelcastInstance) {
+
+        IMap<Long, String> mapStore = hazelcastInstance.getMap("mapstoremap");
+        mapStore.put(1L,"test");
+
+    }
     private static void createDbMap(HazelcastInstance hazelcastInstance) {
 
 

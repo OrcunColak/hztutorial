@@ -48,6 +48,12 @@
         <shared>true</shared>
     </external-data-store>
 
+    <map name="mapstoremap">
+        <map-store enabled="true">
+            <class-name>com.colak.imdg.mapstore.MyMapStore</class-name>
+        </map-store>
+    </map>
+
     <map name="dbmap">
         <map-store enabled="true">
             <class-name>com.hazelcast.mapstore.GenericMapStore</class-name>
