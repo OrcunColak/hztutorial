@@ -15,8 +15,6 @@ import org.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-
 
 public class Server {
 
@@ -76,7 +74,7 @@ public class Server {
 
         SqlPortable.beforeClass(hazelcastInstance);
 
-        Map<Integer, GenericRecord> map = hazelcastInstance.getMap("dbmap");
+        IMap<Integer, GenericRecord> map = hazelcastInstance.getMap("dbmap");
         for (int i = 0; i < 3; i++) {
             String value = "message" + i;
 
@@ -91,7 +89,7 @@ public class Server {
     }
 
     private static void createSimpleMap(HazelcastInstance hazelcastInstance) {
-        Map<Long, String> map = hazelcastInstance.getMap("data");
+        IMap<Long, String> map = hazelcastInstance.getMap("data");
         FlakeIdGenerator idGenerator = hazelcastInstance.getFlakeIdGenerator("newid");
         for (int i = 0; i < 10; i++) {
             long key = idGenerator.newId();
@@ -101,7 +99,7 @@ public class Server {
     }
 
     private static void createPersonMap(HazelcastInstance hazelcastInstance) {
-        Map<Long, Person> map = hazelcastInstance.getMap("person");
+        IMap<Long, Person> map = hazelcastInstance.getMap("person");
         FlakeIdGenerator idGenerator = hazelcastInstance.getFlakeIdGenerator("newid");
         for (int i = 0; i < 10; i++) {
             long key = idGenerator.newId();
