@@ -6,6 +6,7 @@ import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.ReplicatedMapConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
 import com.hazelcast.map.IMap;
 import com.hazelcast.nio.serialization.genericrecord.GenericRecord;
@@ -14,6 +15,10 @@ import com.hazelcast.replicatedmap.ReplicatedMap;
 import org.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 
 public class Server {
@@ -29,6 +34,8 @@ public class Server {
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
+        createExecutorService(hazelcastInstance);
+        
         createMapStore(hazelcastInstance);
 
         createReplicatedMap(hazelcastInstance);
@@ -45,6 +52,30 @@ public class Server {
         WordCounter wordCounter = new WordCounter();
         wordCounter.countWord(hazelcastInstance);
         logger.info("Server ready");
+    }
+
+    static class OneSecondSleepingTask implements Runnable, Serializable {
+
+        OneSecondSleepingTask() {
+        }
+
+        public static void sleepSeconds(int seconds) {
+            try {
+                SECONDS.sleep(seconds);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        @Override
+        public void run() {
+            sleepSeconds(1);
+        }
+
+    }
+
+    private static void createExecutorService(HazelcastInstance hazelcastInstance) {
+        IExecutorService executorService = hazelcastInstance.getExecutorService( "executorService1" );
+        executorService.execute(new OneSecondSleepingTask());
     }
 
     private static void createReplicatedMap(HazelcastInstance hazelcastInstance) {
