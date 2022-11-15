@@ -12,13 +12,14 @@ import com.hazelcast.map.IMap;
 import com.hazelcast.nio.serialization.genericrecord.GenericRecord;
 import com.hazelcast.nio.serialization.genericrecord.GenericRecordBuilder;
 import com.hazelcast.replicatedmap.ReplicatedMap;
+import com.hazelcast.scheduledexecutor.TaskUtils;
 import org.example.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 
 public class Server {
@@ -35,7 +36,7 @@ public class Server {
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
         createExecutorService(hazelcastInstance);
-        
+
         createMapStore(hazelcastInstance);
 
         createReplicatedMap(hazelcastInstance);
@@ -54,28 +55,20 @@ public class Server {
         logger.info("Server ready");
     }
 
-    static class OneSecondSleepingTask implements Runnable, Serializable {
-
-        OneSecondSleepingTask() {
-        }
-
-        public static void sleepSeconds(int seconds) {
-            try {
-                SECONDS.sleep(seconds);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-        @Override
-        public void run() {
-            sleepSeconds(1);
-        }
-
-    }
-
     private static void createExecutorService(HazelcastInstance hazelcastInstance) {
-        IExecutorService executorService = hazelcastInstance.getExecutorService( "executorService1" );
-        executorService.execute(new OneSecondSleepingTask());
+
+        IExecutorService executorService = hazelcastInstance.getExecutorService("executorService1");
+        Runnable myRunnable = TaskUtils.named("orcun", new OneSecondSleepingRunnable());
+
+        Callable<Integer> myCallable = TaskUtils.named("orcun", new OneSecondSleepingCallable());
+        Future<Integer> integerFuture = executorService.submit(myCallable);
+        try {
+            Integer result = integerFuture.get();
+            logger.info("Callable Result is : {}", result);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Exception caught in callable: ", e);
+        }
+
     }
 
     private static void createReplicatedMap(HazelcastInstance hazelcastInstance) {
@@ -88,18 +81,19 @@ public class Server {
         replicatedMapConfig.setSplitBrainProtectionName("splitbrainprotection-name");
 
         ReplicatedMap<String, String> replicatedMap = hazelcastInstance.getReplicatedMap("rogueUsers");
-        replicatedMap.put("key","value");
+        replicatedMap.put("key", "value");
 
     }
 
     private static void createMapStore(HazelcastInstance hazelcastInstance) {
 
         IMap<Long, String> mapStore = hazelcastInstance.getMap("mapstoremap");
-        mapStore.put(1L,"test");
+        mapStore.put(1L, "test");
         String s = mapStore.get(1L);
         String s1 = mapStore.get(2L);
 
     }
+
     private static void createDbMap(HazelcastInstance hazelcastInstance) {
 
 
