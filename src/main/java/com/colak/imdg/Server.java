@@ -1,6 +1,7 @@
 package com.colak.imdg;
 
-import com.colak.jet.WordCounter;
+import com.colak.jet.EventJournalJob;
+import com.colak.jet.WordCounterJob;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.InMemoryFormat;
 import com.hazelcast.config.ReplicatedMapConfig;
@@ -35,6 +36,7 @@ public class Server {
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
+        createEventJournalJob(hazelcastInstance);
         createExecutorService(hazelcastInstance);
 
         createMapStore(hazelcastInstance);
@@ -50,11 +52,14 @@ public class Server {
         createPersonMap(hazelcastInstance);
         logger.info("Server created person map");
 
-        WordCounter wordCounter = new WordCounter();
-        wordCounter.countWord(hazelcastInstance);
+        createWordCounterJob(hazelcastInstance);
         logger.info("Server ready");
     }
 
+    private static void createEventJournalJob(HazelcastInstance hazelcastInstance) {
+        EventJournalJob eventJournal = new EventJournalJob();
+        eventJournal.journal(hazelcastInstance);
+    }
     private static void createExecutorService(HazelcastInstance hazelcastInstance) {
 
         IExecutorService executorService = hazelcastInstance.getExecutorService("executorService1");
@@ -132,5 +137,10 @@ public class Server {
             Person person = new Person(key, name);
             map.put(key, person);
         }
+    }
+
+    private static void createWordCounterJob(HazelcastInstance hazelcastInstance) {
+        WordCounterJob wordCounterJob = new WordCounterJob();
+        wordCounterJob.countWord(hazelcastInstance);
     }
 }

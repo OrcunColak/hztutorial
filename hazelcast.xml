@@ -52,6 +52,12 @@
         <map-store enabled="true">
             <class-name>com.colak.imdg.mapstore.MyMapStore</class-name>
         </map-store>
+
+        <event-journal enabled="true">
+            <capacity>5000</capacity>
+            <time-to-live-seconds>20</time-to-live-seconds>
+        </event-journal>
+
     </map>
 
     <map name="dbmap">

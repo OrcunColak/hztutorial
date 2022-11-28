@@ -7,7 +7,7 @@ import com.hazelcast.jet.pipeline.Pipeline;
 import com.hazelcast.jet.pipeline.Sinks;
 import com.hazelcast.jet.pipeline.test.TestSources;
 
-public class WordCounter {
+public class WordCounterJob {
 
 
     public void countWord(HazelcastInstance hazelcastInstance) {

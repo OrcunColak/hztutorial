@@ -1,6 +1,6 @@
 package com.colak.imdg;
 
-import com.colak.jet.WordCounter;
+import com.colak.jet.WordCounterJob;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
@@ -19,16 +19,16 @@ public class Client {
 
         iterateSimpleMap(hazelcastInstanceClient);
 
-        submitWordCounter(hazelcastInstanceClient);
+        submitWordCounterJob(hazelcastInstanceClient);
 
         logger.info("Client finished submitting job");
 
         hazelcastInstanceClient.shutdown();
     }
 
-    private static void submitWordCounter(HazelcastInstance hazelcastInstanceClient) {
-        WordCounter wordCounter = new WordCounter();
-        wordCounter.countWord(hazelcastInstanceClient);
+    private static void submitWordCounterJob(HazelcastInstance hazelcastInstanceClient) {
+        WordCounterJob wordCounterJob = new WordCounterJob();
+        wordCounterJob.countWord(hazelcastInstanceClient);
     }
 
     private static void iterateSimpleMap(HazelcastInstance hazelcastInstanceClient) {
