@@ -1,5 +1,6 @@
 package com.colak.imdg;
 
+import com.colak.imdg.genericmapstore.GenericMapStoreCreator;
 import com.colak.jet.EventJournalJob;
 import com.colak.jet.WordCounterJob;
 import com.hazelcast.config.Config;
@@ -10,8 +11,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
 import com.hazelcast.map.IMap;
-import com.hazelcast.nio.serialization.genericrecord.GenericRecord;
-import com.hazelcast.nio.serialization.genericrecord.GenericRecordBuilder;
 import com.hazelcast.replicatedmap.ReplicatedMap;
 import com.hazelcast.scheduledexecutor.TaskUtils;
 import org.example.Person;
@@ -43,8 +42,8 @@ public class Server {
 
         createReplicatedMap(hazelcastInstance);
 
-        createDbMap(hazelcastInstance);
-        logger.info("Server created dbmap");
+        GenericMapStoreCreator.createDbMap(hazelcastInstance);
+        logger.info("Server created GenericMapStore");
 
         createSimpleMap(hazelcastInstance);
         logger.info("Server created simple map");
@@ -52,6 +51,8 @@ public class Server {
         createPersonMap(hazelcastInstance);
         logger.info("Server created person map");
 
+        GenericMapStoreCreator.scheduleCleanDbMap(hazelcastInstance);
+        
         createWordCounterJob(hazelcastInstance);
         logger.info("Server ready");
     }
@@ -97,25 +98,6 @@ public class Server {
         String s = mapStore.get(1L);
         String s1 = mapStore.get(2L);
 
-    }
-
-    private static void createDbMap(HazelcastInstance hazelcastInstance) {
-
-
-        SqlPortable.beforeClass(hazelcastInstance);
-
-        IMap<Integer, GenericRecord> map = hazelcastInstance.getMap("dbmap");
-        for (int i = 0; i < 3; i++) {
-            String value = "message" + i;
-
-            GenericRecord genericRecord = GenericRecordBuilder.compact("Person")
-                    .setInt32("id", i)
-                    .setString("name", value)
-                    .setString("ssn", value)
-                    .build();
-
-            map.put(i, genericRecord);
-        }
     }
 
     private static void createSimpleMap(HazelcastInstance hazelcastInstance) {
