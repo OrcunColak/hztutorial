@@ -10,6 +10,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IExecutorService;
 import com.hazelcast.flakeidgen.FlakeIdGenerator;
+import com.hazelcast.jet.config.JetConfig;
 import com.hazelcast.map.IMap;
 import com.hazelcast.replicatedmap.ReplicatedMap;
 import com.hazelcast.scheduledexecutor.TaskUtils;
@@ -29,13 +30,19 @@ public class Server {
 
     public static void main(String[] args) {
 
-        HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance();
+        Config config = new Config();
+        JetConfig jetConfig = config.getJetConfig();
+        jetConfig.setEnabled(true)
+                .setResourceUploadEnabled(true);
 
-        //PrepareDatabase.prepareDatabase(hazelcastInstance);
+        GenericMapStoreCreator.setConfig(config);
+
+        HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+        GenericMapStoreCreator.populateDbMap(hazelcastInstance);
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
-        createEventJournalJob(hazelcastInstance);
+        /*createEventJournalJob(hazelcastInstance);
         createExecutorService(hazelcastInstance);
 
         createMapStore(hazelcastInstance);
@@ -53,7 +60,7 @@ public class Server {
 
         GenericMapStoreCreator.scheduleCleanDbMap(hazelcastInstance);
         
-        createWordCounterJob(hazelcastInstance);
+        createWordCounterJob(hazelcastInstance);*/
         logger.info("Server ready");
     }
 
@@ -61,6 +68,7 @@ public class Server {
         EventJournalJob eventJournal = new EventJournalJob();
         eventJournal.journal(hazelcastInstance);
     }
+
     private static void createExecutorService(HazelcastInstance hazelcastInstance) {
 
         IExecutorService executorService = hazelcastInstance.getExecutorService("executorService1");
