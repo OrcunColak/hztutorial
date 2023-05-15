@@ -1,6 +1,5 @@
 package com.colak.imdg;
 
-import com.colak.imdg.genericmapstore.GenericMapStoreCreator;
 import com.colak.jet.EventJournalJob;
 import com.colak.jet.WordCounterJob;
 import com.hazelcast.config.Config;
@@ -35,10 +34,10 @@ public class Server {
         jetConfig.setEnabled(true)
                 .setResourceUploadEnabled(true);
 
-        GenericMapStoreCreator.setConfig(config);
+        //GenericMapStoreCreator.setConfig(config);
 
         HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
-        GenericMapStoreCreator.populateDbMap(hazelcastInstance);
+       // GenericMapStoreCreator.populateDbMap(hazelcastInstance);
 
         logger.info("Name of the instance: {}", hazelcastInstance.getName());
 
