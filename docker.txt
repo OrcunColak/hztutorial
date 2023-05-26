@@ -1,1 +1,3 @@
-docker run -d -it  -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=db  --name mysql --rm -p 3306:3306 -v ${PWD}/schema.sql:/docker-entrypoint-initdb.d/schema.sql mysql:8.0
+docker run -d -it -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=db  --name mysql --rm -p 3306:3306 -v ${PWD}/schema.sql:/docker-entrypoint-initdb.d/schema.sql mysql:8.0
+
+docker run -d -it -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=mysecretpassword --name postgres --rm -p 5432:5432 postgres
