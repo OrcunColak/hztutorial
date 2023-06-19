@@ -1,12 +1,16 @@
 package com.colak.imdg;
 
+import com.colak.jet.jdbc.JdbcToIMapJob;
 import com.colak.jet.WordCounterJob;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.ClientTpcConfig;
 import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class Client {
@@ -15,15 +19,28 @@ public class Client {
 
     public static void main(String[] args) {
         ClientConfig clientConfig = new ClientConfig();
+
+        ClientTpcConfig tpcConfig = clientConfig.getTpcConfig();
+        List<String> memberList = new ArrayList<>();
+        memberList.add("127.0.0.1:5900");
+
         HazelcastInstance hazelcastInstanceClient = HazelcastClient.newHazelcastClient(clientConfig);
 
-        iterateSimpleMap(hazelcastInstanceClient);
+        submitJdbc(hazelcastInstanceClient);
 
-        submitWordCounterJob(hazelcastInstanceClient);
+        /*iterateSimpleMap(hazelcastInstanceClient);
+
+
+        submitWordCounterJob(hazelcastInstanceClient);*/
 
         logger.info("Client finished submitting job");
 
         hazelcastInstanceClient.shutdown();
+    }
+
+    private static void submitJdbc(HazelcastInstance hazelcastInstanceClient) {
+        JdbcToIMapJob jdbcToIMapJob = new JdbcToIMapJob();
+        jdbcToIMapJob.jdbc(hazelcastInstanceClient);
     }
 
     private static void submitWordCounterJob(HazelcastInstance hazelcastInstanceClient) {
