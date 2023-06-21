@@ -4,25 +4,36 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.jet.JetService;
 import com.hazelcast.jet.Job;
 import com.hazelcast.jet.config.JobConfig;
-import com.hazelcast.jet.pipeline.BatchSource;
 import com.hazelcast.jet.pipeline.Pipeline;
-import com.hazelcast.jet.pipeline.Sinks;
-import com.hazelcast.jet.pipeline.Sources;
 import com.hazelcast.map.IMap;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.nio.file.Files;
+import java.util.function.Supplier;
 
 public class JdbcToIMapJob {
 
-    private static final String URL = "jdbc:mysql://mysql:3306/db?user=root&password=root";
-    private static final String QUERY = "SELECT * FROM myworker";
 
-    private static final String MAP_NAME = "my-map";
+    static Class<?> pipeLineClass;
+    static Supplier<Pipeline> pipelineSupplier;
 
-    public static void jdbc(HazelcastInstance hazelcastInstance) {
+    public static void jdbc(HazelcastInstance hazelcastInstance)
+            throws ClassNotFoundException, NoSuchMethodException, IOException,
+            InvocationTargetException, InstantiationException, IllegalAccessException {
+
+        File sourceFile = new File("D:/hztutorial/hztutorial/src/main/resources/com/colak/jet/jdbc/resource/postgre_to_imap.txt");
+
+        String allLines = new String (Files.readAllBytes(sourceFile.toPath()));
+
+
+        String className = "com.colak.jet.jdbc.PosgreToIMap";
+        pipeLineClass = DynamicCompiler.compileForJava11(className,allLines);
+
+        pipelineSupplier = (Supplier<Pipeline>) pipeLineClass.getDeclaredConstructor().newInstance();
+
         destroyMap(hazelcastInstance);
 
 
@@ -34,13 +45,13 @@ public class JdbcToIMapJob {
             File file = new File("mysql-connector-j-8.0.33.jar");
             URL jarResource = file.toURI().toURL();
             jobConfig.addJar(jarResource);
-            jobConfig.addClass(JdbcToIMapJob.class);
+            jobConfig.addClass(pipeLineClass);
 
-            Pipeline pipeline = buildPipeline();
+            Pipeline pipeline = pipelineSupplier.get();
             Job job = jet.newJob(pipeline, jobConfig);
             job.join();
 
-            IMap<Integer, String> map = hazelcastInstance.getMap(MAP_NAME);
+            IMap<Integer, String> map = hazelcastInstance.getMap("my-map");
             System.out.println("map = " + map.get(1));
 
 
@@ -50,51 +61,9 @@ public class JdbcToIMapJob {
     }
 
     private static void destroyMap(HazelcastInstance hazelcastInstance) {
-        IMap<Object, Object> map = hazelcastInstance.getMap(MAP_NAME);
+        IMap<Object, Object> map = hazelcastInstance.getMap("my-map");
         map.destroy();
     }
 
-    public static Worker mapOutput(ResultSet resultSet) throws SQLException {
-        return new Worker(resultSet.getInt("id"), resultSet.getString("name"));
-    }
-
-    private static Pipeline buildPipeline() {
-        Pipeline pipeline = Pipeline.create();
-        BatchSource<Worker> source = Sources.jdbc(URL,
-                QUERY,
-                resultSet -> new Worker(resultSet.getInt("id"), resultSet.getString("name")));
-
-
-        pipeline.readFrom(source)
-                .writeTo(Sinks.map(MAP_NAME, Worker::getId, Worker::getName));
-        return pipeline;
-    }
-
-    public static class Worker {
-
-        int id;
-        String name;
-
-        public Worker(int id, String name) {
-            this.id = id;
-            this.name = name;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
 
 }
