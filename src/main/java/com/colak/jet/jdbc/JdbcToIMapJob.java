@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 public class JdbcToIMapJob {
 
 
     static Class<?> pipeLineClass;
-    static Supplier<Pipeline> pipelineSupplier;
+    static Function<String,Pipeline> pipelineSupplier;
 
     public static void jdbc(HazelcastInstance hazelcastInstance)
             throws ClassNotFoundException, NoSuchMethodException, IOException,
@@ -32,7 +32,7 @@ public class JdbcToIMapJob {
         String className = "com.colak.jet.jdbc.PosgreToIMap";
         pipeLineClass = DynamicCompiler.compileForJava11(className,allLines);
 
-        pipelineSupplier = (Supplier<Pipeline>) pipeLineClass.getDeclaredConstructor().newInstance();
+        pipelineSupplier = (Function<String,Pipeline>) pipeLineClass.getDeclaredConstructor().newInstance();
 
         destroyMap(hazelcastInstance);
 
@@ -47,7 +47,7 @@ public class JdbcToIMapJob {
             jobConfig.addJar(jarResource);
             jobConfig.addClass(pipeLineClass);
 
-            Pipeline pipeline = pipelineSupplier.get();
+            Pipeline pipeline = pipelineSupplier.apply("jdbc:mysql://mysql:3306/db?user=root&password=root");
             Job job = jet.newJob(pipeline, jobConfig);
             job.join();
 

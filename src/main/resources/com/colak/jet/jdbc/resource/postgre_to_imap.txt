@@ -9,19 +9,21 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class PosgreToIMap implements Supplier<Pipeline>, Serializable {
+public class PosgreToIMap implements Function<String,Pipeline>, Serializable {
 
-    private static final String URL = "jdbc:mysql://mysql:3306/db?user=root&password=root";
+    private String url;
     private static final String QUERY = "SELECT * FROM myworker";
 
     public static final String MAP_NAME = "my-map";
 
     @Override
-    public Pipeline get() {
+    public Pipeline apply(String url) {
+        this.url = url;
         Pipeline pipeline = Pipeline.create();
-        BatchSource<Map.Entry<Integer, String>> source = Sources.jdbc(URL,
+        BatchSource<Map.Entry<Integer, String>> source = Sources.jdbc(url,
                 QUERY,
                 this::mapOutput);
         pipeline.readFrom(source)
