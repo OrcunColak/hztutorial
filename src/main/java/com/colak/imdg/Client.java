@@ -2,6 +2,7 @@ package com.colak.imdg;
 
 import com.colak.jet.WordCounterJob;
 import com.colak.jet.jdbc.JdbcToIMapJob;
+import com.colak.jet.jdbc.KafkaConnectDataGeneratorJob;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientTpcConfig;
@@ -9,8 +10,6 @@ import com.hazelcast.core.HazelcastInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,8 +18,7 @@ public class Client {
 
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
-    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IOException,
-            InvocationTargetException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws Exception {
         ClientConfig clientConfig = new ClientConfig();
 
         ClientTpcConfig tpcConfig = clientConfig.getTpcConfig();
@@ -29,7 +27,8 @@ public class Client {
 
         HazelcastInstance hazelcastInstanceClient = HazelcastClient.newHazelcastClient(clientConfig);
 
-        submitJdbc(hazelcastInstanceClient);
+        submitKafkaConnectDataGen(hazelcastInstanceClient);
+//        submitJdbc(hazelcastInstanceClient);
 
         /*iterateSimpleMap(hazelcastInstanceClient);
 
@@ -42,9 +41,12 @@ public class Client {
     }
 
     private static void submitJdbc(HazelcastInstance hazelcastInstanceClient)
-            throws ClassNotFoundException, NoSuchMethodException,
-            InvocationTargetException, InstantiationException, IllegalAccessException, IOException {
+            throws Exception {
         JdbcToIMapJob.jdbc(hazelcastInstanceClient);
+    }
+
+    private static void submitKafkaConnectDataGen(HazelcastInstance hazelcastInstanceClient) throws Exception {
+        KafkaConnectDataGeneratorJob.kafkaConnectDataGen(hazelcastInstanceClient);
     }
 
     private static void submitWordCounterJob(HazelcastInstance hazelcastInstanceClient) {
